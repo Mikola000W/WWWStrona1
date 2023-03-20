@@ -1,0 +1,51 @@
+{% extends 'base_bulma.html' %}
+
+
+{% block title %}New Item{% endblock title %}
+{% block h1 %}New Item{% endblock h1 %}
+
+{% block main %}
+<form method="POST">
+  {% csrf_token %}
+  <table class="table">
+    <tbody>
+
+      {% if errors %}
+        <tr>
+          <td style="color:red;" colspan="2"><span>{{ errors }}</span></td>
+        </tr>
+      {% endif %}
+
+      {% if user.role == 1 or user.role == 2 %}
+          <tr>
+            <th><label>Name</label></th>
+            <td><input type="text" name="name" value="{{ name }}" /></td>
+          </tr>
+          <tr>
+            <th><label>Description</label></th>
+            <td><input type="text" name="description" value="{{ description }}" /></td>
+          </tr>
+          <tr>
+            <th><label>Price</label></th>
+            <td><input type="number" name="price" value="{{ price }}" /></td>
+          </tr>
+          <tr>
+            <th><label>Code</label></th>
+            <td><input type="text" name="code" value="{{ password }}" /></td>
+          </tr>
+          <tr>
+            <th><label>is_available</label></th>
+            <td><input type="checkbox" name="is_available" value="{{ is_available }}" /></td>
+          <tr>
+            <th></th>
+            <td>
+                <button type="submit">Save</button>
+            </td>
+          </tr>
+        {% else %}
+          <td>You have no permission to be here :/</td>
+        {% endif %}
+    </tbody>
+  </table>
+</form>
+{% endblock main %}

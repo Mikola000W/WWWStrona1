@@ -1,0 +1,34 @@
+{% extends 'base_bulma.html' %}
+
+
+{% block title %}Item List{% endblock title %}
+{% block h1 %}Items{% endblock h1 %}
+
+{% block main %}
+  <table class="table">
+    <thead>
+      <tr>
+        <th colspan="4"></th>
+        <th colspan="5">Address</th>
+      </tr>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+        <th>Price</th>
+        <th>Code</th>
+        <th>Is available</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in items %}
+        <tr>
+          <td>{{ item.name }}</td>
+          <td>{{ item.description }}</td>
+          <td>{{ item.price }}</td>
+          <td>{{ item.code }}</td>
+          <td>{{ item.is_available }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock main %}
