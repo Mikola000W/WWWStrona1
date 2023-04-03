@@ -1,5 +1,6 @@
 from django.shortcuts import render, HttpResponseRedirect
 from django.urls import reverse_lazy
+from django.http import JsonResponse
 
 from items.models import Item
 
@@ -22,7 +23,6 @@ def item_table(request):
 
 def item_create(request):
     data = {}
-    print("Hello")
     if request.method == 'POST':
         data['name'] = request.POST.get('name')
         data['description'] = request.POST.get('description')
@@ -37,7 +37,7 @@ def item_create(request):
             if Item.objects.filter(name=name).exists():
                 return render(request, 'items/item_create.html', {'errors': 'You already used this name'})
 
-        if data['name'] and data['description'] and data['price']:
+        if data['name'] and data['description'] and data['price'] and data['is_available']:
             try:
                 item.save()
                 item_list_url = reverse_lazy('home')
@@ -48,3 +48,35 @@ def item_create(request):
             data['errors'] = 'Fill all brackets'
 
     return render(request, 'items/item_create.html', context=data)
+
+def add_to_cart(request, item_id):
+    # print('item id', item_id)
+    cart_in_session = request.session['cart'] if 'cart' in request.session else []
+    cart_in_session.append(item_id)
+    # request.session.flush('cart')
+    request.session.update({'cart': cart_in_session})
+    # print('session', request.session['cart'])
+    return JsonResponse({'message': 'Added item to cart.'})
+
+
+def delete_from_cart(request):
+    cart_in_session = request.session['cart'] if 'cart' in request.session else []
+    cart_in_session.clear()
+    request.session.update({'cart': cart_in_session})
+    return render(request, 'items/cart.html')
+
+def cart(request):
+    cart_in_session = request.session['cart'] if 'cart' in request.session else []
+
+    context = {'cart': []}
+    amount = 0
+    items = Item.objects.filter(id__in=cart_in_session)
+
+    for item in items:
+        counter = cart_in_session.count(item.id)
+        context['cart'].append({'item_object': item, 'count': counter})
+        amount += counter * item.price
+
+    context.update({'amount': amount})
+
+    return render(request, 'items/cart.html', context=context)

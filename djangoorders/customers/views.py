@@ -49,10 +49,13 @@ def customer_create(request):
 
         if data['first_name'] and data['last_name'] and data['username']:
             try:
-                customer.set_password(password)
-                customer.save()
-                customer_list_url = reverse_lazy('home')
-                return HttpResponseRedirect(customer_list_url)
+                if re.fullmatch(r'[A-Za-z0-9@#!$%^&+=]{8,}', password):
+                    customer.set_password(password)
+                    customer.save()
+                    customer_list_url = reverse_lazy('home')
+                    return HttpResponseRedirect(customer_list_url)
+                else:
+                    data['errors'] = 'Password does not meet requirements'
             except Exception as e:
                 print(e)
         else:
@@ -97,41 +100,8 @@ def customer_update(request, pk):
                 print(e)
                 data['errors'] = str(e)
         else:
-            data['errors'] = 'First Name and Last Name fields are required'
+            data['errors'] = 'First and Last Name fields are required'
 
     return render(request, 'customers/customer_update.html', context=data)
 
 
-class CustomUserCreationForm(UserCreationForm):
-    password_confirm = forms.CharField(
-        label=_("Confirm password"),
-        widget=forms.PasswordInput(attrs={'class': 'form-control'}),
-        help_text=_("Enter the same password as above, for verification."),
-        required=True,
-    )
-
-def clean_password(self):
-    password = self.cleaned_data.get('password')
-    if not re.search("[a-z]", password):
-        raise forms.ValidationError(_("The password must contain at least one lowercase letter."))
-    if not re.search("[A-Z]", password):
-        raise forms.ValidationError(_("The password must contain at least one uppercase letter."))
-    if not re.search("[0-9]", password):
-        raise forms.ValidationError(_("The password must contain at least one digit."))
-    if not re.search("[@#$%^&+=]", password):
-        raise forms.ValidationError(_("The password must contain at least one special character (@#$%^&+=)."))
-    if len(password) < 8:
-        raise forms.ValidationError(_("The password must be at least 8 characters long."))
-    return password
-
-def clean(self):
-    cleaned_data = super().clean()
-    password = cleaned_data.get('password')
-    password_confirm = cleaned_data.get('password_confirm')
-    if password and password_confirm and password != password_confirm:
-        raise forms.ValidationError(_("The two password fields must match."))
-    return cleaned_data
-
-class Meta:
-    model = User
-    fields = UserCreationForm.Meta.fields + ('password_confirm',)

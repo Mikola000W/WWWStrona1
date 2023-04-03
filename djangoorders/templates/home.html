@@ -1,8 +1,11 @@
 {% extends 'base_bulma.html' %}
+{% load static %}
+<!doctype html>
 
 
 {% block title %}Ordering App{% endblock title %}
 {% block h1 %}Homepage{% endblock h1 %}
+
 
 {% block main %}
     {% if user.is_authenticated %}
@@ -13,6 +16,8 @@
         {% else %}
             <div style="float:right;" ><a class='button is-right'>Add Item(Not Available)</a></div>
         {% endif %}
+
+
 
 
 
@@ -30,6 +35,9 @@
     <li><a href="{% url 'customer_table' %}">Customers</a></li>
     <li><a href="{% url 'item_table' %}">Items</a></li>
     <li><a href="{% url 'admin:index' %}">Admin</a></li>
+    {% if user.role == 3%}
+        <li><a href="{% url 'cart' %}">Cart</a></li>
+    {% endif %}
     <li>Orders</li>
   </ul>
 {% endblock main %}
